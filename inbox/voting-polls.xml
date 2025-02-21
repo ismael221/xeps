@@ -1,0 +1,219 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE xep SYSTEM 'xep.dtd' [
+        <!ENTITY % ents SYSTEM 'xep.ent'>
+        %ents;
+        ]>
+<?xml-stylesheet type='text/xsl' href='xep.xsl'?>
+<xep>
+    <header>
+        <title>GroupChat Polls</title>
+        <abstract>This specification provides a framework for creating and managing polls within XMPP-based
+            applications
+        </abstract>
+        &LEGALNOTICE;
+        <number>xxxx</number>
+        <status>ProtoXEP</status>
+        <type>Standards Track</type>
+        <sig>Standards</sig>
+        <approver>Council</approver>
+        <dependencies>
+            <spec>XMPP Core</spec>
+            <spec>XEP-0001</spec>
+            <spec>XEP-0030</spec>
+            <spec>XEP-0115</spec>
+            <spec>XEP-0128</spec>
+            <spec>Etc.</spec>
+        </dependencies>
+        <supersedes/>
+        <supersededby/>
+        <shortname>poll</shortname>
+        <tags>
+            <tag>template</tag>
+        </tags>
+        <author>
+            <firstname>Ismael</firstname>
+            <surname>Nunes Campos</surname>
+            <email>ismael221@jabber.org</email>
+            <jid>ismael221@jabber.org</jid>
+        </author>
+        <revision>
+            <version>0.0.1</version>
+            <date>2025-02-22</date>
+            <initials>psa</initials>
+            <remark>
+                <p>First draft.</p>
+            </remark>
+        </revision>
+    </header>
+    <section1 topic='Introduction' anchor='intro'>
+        <p>
+            The Polls XEP provides a framework for creating and managing polls within XMPP-based applications. Polls are
+            a popular way to gather opinions, votes, or preferences from a group of users in real-time, and this XEP
+            aims to standardize the process of initiating, participating in, and collecting results for polls in XMPP
+            messaging environments.
+
+            By implementing this XEP, developers can easily integrate polling capabilities into their XMPP-based chat
+            applications, allowing users to create polls with customizable options, cast votes, and view the
+            results—either as they are updated in real time or after the poll has concluded.
+
+            The XEP outlines the structure of poll messages, including the creation of polls, the recording of votes,
+            and the handling of results (both partial and final). Polls can be conducted in group chats, where
+            participants send responses that are counted and processed automatically. The XEP also supports the
+            broadcasting of poll results, ensuring that all participants stay informed on the voting progress.
+
+            This specification is ideal for collaborative environments where group decision-making is essential, such as
+            organizing events, determining preferences, or gathering feedback from large communities.
+        </p>
+    </section1>
+    <section1 topic='Requirements' anchor='reqs'>
+        <p>STRONGLY RECOMMENDED.</p>
+    </section1>
+    <section1 topic='Use Cases' anchor='usecases'>
+        <section2 topic="Creating a poll in a group chat" anchor="creating-poll">
+            <p>
+                When a user creates a poll in a group chat, the client sends a
+                &lt;message&gt; stanza containing a &lt;poll&gt; element. The poll
+                includes a &lt;description&gt; element explaining the purpose of the poll,
+                an &lt;expiration&gt; element indicating the deadline, and an &lt;options&gt;
+                element listing the possible choices. Each option is represented by an
+                &lt;option&gt; element with a unique 'id' attribute.
+            </p>
+            <example caption="User creates a poll in a group chat"><![CDATA[
+<message to="ismael.conference@ismael" id="message-4878787" type="groupchat">
+    <poll id="12345678" xmlns="urn:xmpp:poll:0">
+        <description>
+            Poll to find out who can donate blood:
+        </description>
+        <expiration>2025-02-22T12:00:00Z</expiration> <!-- Poll expiration date -->
+        <options>
+            <option id="1">Of course, I'm in for the group donation on 02/22 :)</option>
+            <option id="2">Of course, I'm in for 03/08 :)</option>
+            <option id="3">I won't be able to this time :(</option>
+            <option id="4">I'm in for 03/15 :)</option> <!-- New option added -->
+        </options>
+    </poll>
+</message>]]></example>
+        </section2>
+        <section2 topic="Voting in a poll" anchor="voting-in-poll">
+            <p>
+                When a user votes in a poll, the client sends a &lt;message&gt; stanza containing a
+                &lt;poll&gt; element. The poll is identified by its 'id' attribute, and the selected
+                option is specified within an &lt;option&gt; element with a corresponding 'id'. This
+                allows the server and other clients to register the user's vote properly.
+            </p>
+            <example caption="User votes for an option in the poll"><![CDATA[
+<message to="ismael.conference@ismael" id="message-4878788" type="groupchat">
+    <poll id="12345678" xmlns="urn:xmpp:poll:0">
+        <option id="1">Of course, I'm in for the group donation on 02/22 :)</option>
+    </poll>
+</message>]]></example>
+        </section2>
+        <section2 topic="Updating poll results" anchor="updating-poll-results">
+            <p>
+                When a poll receives votes, the client sends a &lt;message&gt; stanza containing a
+                &lt;poll&gt; element with a &lt;result&gt; sub-element. The 'final' attribute in the
+                &lt;result&gt; element indicates whether the poll is still open ("false") or has ended ("true").
+                Each option in the poll is represented by an &lt;option&gt; element with an 'id' attribute
+                and a 'votes' attribute, reflecting the current number of votes for that option.
+                This message is sent every time a new vote is registered to keep participants updated.
+            </p>
+            <example caption="Poll results update message"><![CDATA[
+<message to="ismael.conference@ismael" id="message-4878790" type="groupchat">
+    <poll xmlns="urn:xmpp:poll:0" id="12345678">
+        <result final="false">
+            <option id="1" votes="3">Of course, I'm in for the group donation on 02/22 :)</option>
+            <option id="2" votes="2">Of course, I'm in for 03/08 :)</option>
+            <option id="3" votes="1">I won't be able to this time :(</option>
+        </result>
+    </poll>
+</message>]]></example>
+        </section2>
+    </section1>
+    <section1 topic='Business Rules' anchor='rules'>
+        <p>OPTIONAL.</p>
+    </section1>
+    <section1 topic='Implementation Notes' anchor='impl'>
+        <p>OPTIONAL.</p>
+    </section1>
+    <section1 topic='Accessibility Considerations' anchor='access'>
+        <p>REQUIRED.</p>
+    </section1>
+    <section1 topic='Internationalization Considerations' anchor='i18n'>
+        <p>OPTIONAL.</p>
+    </section1>
+    <section1 topic='Security Considerations' anchor='security'>
+        <p>REQUIRED.</p>
+    </section1>
+    <section1 topic='Privacy Considerations' anchor='privacy'>
+        <p>REQUIRED.</p>
+    </section1>
+    <section1 topic='IANA Considerations' anchor='iana'>
+        <p>This document requires no interaction with &IANA;.</p>
+    </section1>
+    <section1 topic='XMPP Registrar Considerations' anchor='registrar'>
+        <p>None.</p>
+    </section1>
+    <section1 topic='Design Considerations' anchor='design'>
+        <!-- Use this section to describe other approaches which have been considered
+        during the design of this protocol and why they have been rejected. Having
+        the result and a summary of long or complicated discussions in the document
+        itself instead of list or chat archives serves future readers. -->
+        <p>RECOMMENDED.</p>
+    </section1>
+    <section1 topic='XEP Styling Examples (1st Level Heading)' anchor='styling'>
+        <p>PLEASE REMOVE THIS SECTION. These are just examples for the RECOMMENDED ways to style your XEP.</p>
+        <section2 topic='2nd Level Heading' anchor='styling-examples'>
+            <p>This is regular XEP text. It can contain <strong>strong</strong> and <em>emphasized</em> markup as well
+                as <tt>fixed-width text</tt>.
+            </p>
+            <p>This is text with a line break.<br/>New line.
+            </p>
+            <p>This is text with a footnote<note>This is the footnote.</note>.
+            </p>
+            <p>This is a <link url='#styling-examples'>link to a section in this document</link>.
+            </p>
+            <p>This is a reference to another XEP: &xep0001;, it can be re-referenced as <cite>XEP-0001</cite> later in
+                the text.
+            </p>
+            <code caption='Code block caption'>Code block content.</code>
+            <ol>
+                <li>This is an ordered list. First item</li>
+                <li>Second item</li>
+            </ol>
+            <ul>
+                <li>This is an unordered list. First item</li>
+                <li>Second item</li>
+            </ul>
+            <dl>
+                <di>
+                    <dt>Definition List</dt>
+                    <dd>
+                        A definition list contains definition items with a title and a description.
+                    </dd>
+                </di>
+            </dl>
+            <p class='box'>Note: This is an informational box</p>
+            <example caption='Example of embedding XMPP XML'><![CDATA[
+<iq from='hag66@shakespeare.lit/pda'
+    id='h7ns81g'
+    to='shakespeare.lit'
+    type='get'>
+  <query xmlns='http://jabber.org/protocol/disco#items'/>
+</iq>
+]]></example>
+            <cve id="2017-5589" url="https://rt-solutions.de/en/cve-2017-5589_xmpp_carbons/">Name of a CVE relevant to
+                the XEP
+            </cve>
+            <cve id="2017-5589">Another CVE with no primary source</cve>
+            <section3 topic='3rd Level Heading' anchor='syling-examples-3rd'>
+                <p>Text in a Sub-Sub-Section.</p>
+                <section4 topic='4th Level Heading' anchor='syling-examples-4th'>
+                    <p>Text in a Sub-Sub-Sub-Section.</p>
+                </section4>
+            </section3>
+        </section2>
+    </section1>
+    <section1 topic='XML Schema' anchor='schema'>
+        <p>REQUIRED for protocol specifications.</p>
+    </section1>
+</xep>
